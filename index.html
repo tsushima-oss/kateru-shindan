@@ -489,7 +489,9 @@ body:has(#s-top.active){background:#fff}
       本相談はオンライン（Google Meet）で実施します。
     </div>
 
-    <div id="timerex_calendar" style="min-height:480px"></div>
+    <div id="timerex-clip" style="overflow:hidden;min-height:480px">
+      <div id="timerex_calendar"></div>
+    </div>
     <a id="timerex-fallback" class="back green" href="#" target="_blank" rel="noopener" style="display:none">カレンダーが表示されない場合はこちらから予約</a>
 
     <a class="btn-phone phone-cta" href="#" aria-label="電話で相談する" hidden style="margin-top:16px">
@@ -926,10 +928,37 @@ function initTimerex(){
           sendLog('booking_complete');   // 診断ログの「予約完了」列に記録
         }
       });
+      watchTimerexSize();
     } catch(e){ fallback.style.display = 'block'; }
   };
   s.onerror = () => { fallback.style.display = 'block'; };
   document.body.appendChild(s);
+}
+
+/* ウィジェット（固定幅iframe）を画面幅に合わせて縮小表示し、横スクロールを防ぐ */
+function fitTimerex(){
+  const cal = document.getElementById('timerex_calendar');
+  const clip = document.getElementById('timerex-clip');
+  const f = cal.querySelector('iframe');
+  if (!f || !f.offsetWidth) return;
+  const base = f.offsetWidth;                    // ウィジェット本来の幅（例：550px）
+  const s = Math.min(1, clip.clientWidth / base);
+  cal.style.width = base + 'px';
+  cal.style.transform = 'scale(' + s + ')';
+  cal.style.transformOrigin = '0 0';
+  cal.style.margin = s < 1 ? '0' : '0 auto';
+  clip.style.height = Math.ceil(cal.offsetHeight * s) + 'px';
+  clip.style.minHeight = '0';
+}
+function watchTimerexSize(){
+  const timer = setInterval(() => {
+    const f = document.querySelector('#timerex_calendar iframe');
+    if (!f) return;
+    clearInterval(timer);
+    fitTimerex();
+    try { new ResizeObserver(fitTimerex).observe(f); } catch(e){ setInterval(fitTimerex, 800); }
+    window.addEventListener('resize', fitTimerex);
+  }, 250);
 }
 
 /* ══════════════════ 空き枠の取得（Googleカレンダー） ══════════════════ */
