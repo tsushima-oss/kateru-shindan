@@ -112,6 +112,16 @@ h2.title .hl{background:linear-gradient(transparent 62%,#cdeed7 62%)}
 .btn-phone .num{font-size:15px;font-weight:900;color:var(--green-deep);letter-spacing:.04em}
 .phone-hours{display:none;text-align:center;font-size:12.5px;color:var(--mute);margin-top:8px;line-height:1.7}
 .phone-hours.show{display:block}
+
+/* ── 発信確認ポップアップ ── */
+.call-overlay{position:fixed;inset:0;background:rgba(17,17,17,.5);display:flex;align-items:center;justify-content:center;padding:24px;z-index:100;animation:fade .2s ease}
+.call-overlay[hidden]{display:none}
+.call-modal{background:#fff;border-radius:18px;padding:26px 22px 18px;width:100%;max-width:320px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.call-modal .call-title{font-size:16px;font-weight:900;margin-bottom:10px}
+.call-modal .call-number{font-size:26px;font-weight:900;color:var(--green);letter-spacing:.04em;margin-bottom:6px}
+.call-modal .call-hours{font-size:12.5px;color:var(--mute);line-height:1.7;margin-bottom:16px}
+.call-modal .btn{text-decoration:none;font-size:17px;padding:14px 20px}
+.call-modal .back{margin-top:12px}
 .back{
   display:block;text-align:center;margin:20px auto 0;background:none;border:none;cursor:pointer;
   font-family:inherit;font-size:15px;font-weight:700;color:#7c837d;letter-spacing:.05em;
@@ -652,6 +662,20 @@ body:has(#s-top.active){background:#fff}
 
 </div>
 
+<!-- ═══════════ 発信確認ポップアップ ═══════════ -->
+<div class="call-overlay" id="call-overlay" hidden>
+  <div class="call-modal" role="dialog" aria-modal="true" aria-label="電話で相談">
+    <div class="call-title">電話で相談する</div>
+    <div class="call-number" id="call-number"></div>
+    <div class="call-hours">電話受付：月〜金 10:00〜18:00<br>（土日・祝日を除く）</div>
+    <a class="btn" id="call-go" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L8.1 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.6 2Z"/></svg>
+      発信する
+    </a>
+    <button class="back" onclick="closeCallModal()">キャンセル</button>
+  </div>
+</div>
+
 <script>
 /* ══════════════════ 設定 ══════════════════ */
 const CONFIG = {
@@ -1174,17 +1198,41 @@ async function book(){
 }
 
 /* ══════════════════ 電話相談ボタン ══════════════════ */
+function openCallModal(){
+  document.getElementById('call-overlay').hidden = false;
+}
+function closeCallModal(){
+  document.getElementById('call-overlay').hidden = true;
+}
 (function initPhone(){
   const num = (CONFIG.CONSULTATION_PHONE_NUMBER || '').replace(/[^0-9+]/g, '');
   document.querySelectorAll('.phone-cta').forEach(a => {
     if (!num){ a.hidden = true; return; }
     a.hidden = false;
-    a.href = 'tel:' + num;
+    a.href = '#';
     // 番号を併記（ハイフン付きの表記のまま表示）
     a.querySelector('.phone-num').textContent = CONFIG.CONSULTATION_PHONE_NUMBER;
-    a.addEventListener('click', () => { track('phone_click'); sendLog('phone_click'); });
+    // タップ→確認ポップアップを表示（発信はポップアップ内の「発信する」で）
+    a.addEventListener('click', e => { e.preventDefault(); openCallModal(); });
   });
   document.querySelectorAll('.phone-hours').forEach(el => el.classList.toggle('show', !!num));
+
+  if (num){
+    document.getElementById('call-number').textContent = CONFIG.CONSULTATION_PHONE_NUMBER;
+    const go = document.getElementById('call-go');
+    go.href = 'tel:' + num;
+    // 「発信する」を押した時だけ計測（③電話の集計精度が上がる）
+    go.addEventListener('click', () => {
+      track('phone_click');
+      sendLog('phone_click');
+      closeCallModal();
+    });
+  }
+  // 背景タップ・Escキーで閉じる
+  document.getElementById('call-overlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeCallModal();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCallModal(); });
 })();
 
 /* ══════════════════ 初期化 ══════════════════ */
