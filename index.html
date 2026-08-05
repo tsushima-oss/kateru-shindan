@@ -471,7 +471,38 @@ body:has(#s-top.active){background:#fff}
     </div>
   </section>
 
-  <!-- ═══════════ 6. 日程選択 ═══════════ -->
+  <!-- ═══════════ 6a. 日程選択（TimeRex埋め込み） ═══════════ -->
+  <section class="screen" id="s-timerex">
+    <div class="brand small">
+      <div class="lockup">
+        <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M 39.5 15.5 A 18 18 0 1 0 42 24" stroke="#07943B" stroke-width="7" stroke-linecap="round"/><circle cx="40" cy="13.5" r="4.6" fill="#07943B"/></svg>
+        <span class="name">カテル</span>
+      </div>
+      <span class="by">by <b>hitokiwa</b></span>
+    </div>
+
+    <h2 class="title" style="font-size:23px">無料相談のご希望日程を<br>選択してください</h2>
+    <p class="lead" style="font-size:14.5px;margin-bottom:14px">ご都合の良い日時を選択してください。（所要時間：約15分）</p>
+
+    <div class="notice">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      本相談はオンライン（Google Meet）で実施します。
+    </div>
+
+    <div id="timerex_calendar" style="min-height:480px"></div>
+    <a id="timerex-fallback" class="back green" href="#" target="_blank" rel="noopener" style="display:none">カレンダーが表示されない場合はこちらから予約</a>
+
+    <a class="btn-phone phone-cta" href="#" aria-label="電話で相談する" hidden style="margin-top:16px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L8.1 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.6 2Z"/></svg>
+      電話で相談する<span class="num phone-num"></span>
+    </a>
+    <div class="phone-hours">電話受付：月〜金 10:00〜18:00（土日・祝日を除く）</div>
+
+    <div class="spacer"></div>
+    <button class="back" onclick="goBack('s-result')">‹ 戻る</button>
+  </section>
+
+  <!-- ═══════════ 6b. 日程選択（GAS版・TIMEREX_URL未設定時のみ使用） ═══════════ -->
   <section class="screen" id="s-date">
     <div class="brand small">
       <div class="lockup">
@@ -628,6 +659,9 @@ const CONFIG = {
   GAS_URL: '',
   // 電話相談の番号。空にすると電話ボタンは非表示になります。（現在は仮番号）
   CONSULTATION_PHONE_NUMBER: '080-6175-4152',
+  // TimeRexの予約ページURL。設定すると日程選択はTimeRex埋め込みに切り替わります。
+  // 空にすると従来のGAS予約フロー（日程選択→情報入力）に戻ります。
+  TIMEREX_URL: 'https://timerex.net/s/tsushima_789b_150a/ee123e9f',
   SOURCE: 'meta_ad'
 };
 const DEMO = !CONFIG.GAS_URL;
@@ -864,8 +898,38 @@ function showResult(){
 
 function goSchedule(){
   sendLog('booking_click');
-  goto('s-date');
-  loadSlots();
+  if (CONFIG.TIMEREX_URL){
+    goto('s-timerex');
+    initTimerex();
+  } else {
+    goto('s-date');
+    loadSlots();
+  }
+}
+
+/* ══════════════════ TimeRex 埋め込み ══════════════════ */
+let timerexLoaded = false;
+function initTimerex(){
+  if (timerexLoaded) return;
+  timerexLoaded = true;
+  const fallback = document.getElementById('timerex-fallback');
+  fallback.href = CONFIG.TIMEREX_URL;
+  document.getElementById('timerex_calendar').setAttribute('data-url', CONFIG.TIMEREX_URL);
+  const s = document.createElement('script');
+  s.id = 'timerex_embed';
+  s.src = 'https://asset.timerex.net/js/embed.js';
+  s.onload = () => {
+    try {
+      TimerexCalendar({
+        'onBookingComplete': function(){
+          track('booking_complete');
+          sendLog('booking_complete');   // 診断ログの「予約完了」列に記録
+        }
+      });
+    } catch(e){ fallback.style.display = 'block'; }
+  };
+  s.onerror = () => { fallback.style.display = 'block'; };
+  document.body.appendChild(s);
 }
 
 /* ══════════════════ 空き枠の取得（Googleカレンダー） ══════════════════ */
