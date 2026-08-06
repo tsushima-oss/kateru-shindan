@@ -273,10 +273,13 @@ h2.title .hl{background:linear-gradient(transparent 62%,#cdeed7 62%)}
 .spacer{flex:1}
 footer.note{margin-top:26px;text-align:center;font-size:12px;color:#a0a6a0;line-height:1.9}
 
-/* ── top screen ── */
+/* ── top hero image ── */
 body:has(#s-top.active){background:#fff}
-#s-top .btn{font-size:clamp(17px,5.2vw,21px);padding:19px 48px;border-radius:16px;white-space:nowrap}
-#s-top .btn .arr-cir{width:38px;height:38px;font-size:20px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.top-hero{position:relative;margin:-14px 0 0}
+.top-hero img{display:block;width:100%;height:auto}
+.top-cta-tap{position:absolute;left:0;top:82.8%;width:100%;height:11.4%;background:transparent;border:none;cursor:pointer;border-radius:16px;-webkit-tap-highlight-color:rgba(7,148,59,.15)}
+.top-cta-tap:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
 
 @media (max-width:400px){
   .target-pill{font-size:11.5px;padding:6px 14px}
@@ -296,61 +299,13 @@ body:has(#s-top.active){background:#fff}
 <body>
 <div class="wrap">
 
-  <!-- ═══════════ 1. トップ ═══════════ -->
+  <!-- ═══════════ 1. トップ（デザイン画像をそのまま表示） ═══════════ -->
   <section class="screen active" id="s-top">
-    <div class="brand">
-      <div class="lockup">
-        <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-          <path d="M 39.5 15.5 A 18 18 0 1 0 42 24" stroke="#07943B" stroke-width="7" stroke-linecap="round"/>
-          <circle cx="40" cy="13.5" r="4.6" fill="#07943B"/>
-        </svg>
-        <span class="name">カテル</span>
-      </div>
-      <span class="by">by <b>hitokiwa</b></span>
+    <h1 class="sr-only">外国人雇用を続けるための申請体制を30秒で診断｜カテル by hitokiwa</h1>
+    <div class="top-hero">
+      <img src="images/top.jpg" alt="カテル by hitokiwa。外国人雇用を続けるための申請体制を30秒で診断。雇用中・雇用経験あり・採用を見送った経験ありの企業向け。所要時間30秒、会社名入力不要、結果をその場で表示。株式会社ヒトキワ｜国際人材採用にまつわるサービスを展開">
+      <button class="top-cta-tap" onclick="startQuiz()" aria-label="診断をはじめる（無料）"></button>
     </div>
-
-    <h1 class="hero">外国人雇用を続けるための<br>申請体制を<span class="em">30秒</span>で診断</h1>
-    <span class="target-pill">雇用中・雇用経験あり・採用を見送った経験ありの企業向け</span>
-
-    <div class="badges">
-      <div class="badge">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-        <div class="t">所要時間<span class="big">30秒</span></div>
-      </div>
-      <div class="badge">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16"/><path d="M8 8h.01M11 8h.01M8 12h.01M11 12h.01"/><circle cx="17.5" cy="14.5" r="2.5"/><path d="M13.8 21c.5-2.3 2-3.5 3.7-3.5s3.2 1.2 3.7 3.5"/><path d="M2 21h20"/></svg>
-        <div class="t">会社名入力<span class="big">不要</span></div>
-      </div>
-      <div class="badge">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M8 13v-3M12 13V8M16 13v-2"/></svg>
-        <div class="t">結果を<span class="big">その場で表示</span></div>
-      </div>
-    </div>
-
-    <div class="illust" aria-hidden="true">
-      <img class="char" src="images/characters/male.png" alt="" loading="lazy">
-      <svg class="checklist" viewBox="0 0 120 192" fill="none">
-        <rect x="4" y="15" width="112" height="173" rx="12" fill="#ffffff" stroke="#cfe3d4" stroke-width="2.5"/>
-        <rect x="40" y="6" width="40" height="19" rx="7" fill="#3f9155"/>
-        <circle cx="60" cy="10" r="7" fill="#3f9155"/>
-        <circle cx="60" cy="10" r="3" fill="#eaf7ed"/>
-        <g stroke="#07943B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none">
-          <rect x="16" y="46" width="19" height="19" rx="4"/>
-          <path d="m20.5 55.5 4 4 7.5-8.5"/>
-          <rect x="16" y="92" width="19" height="19" rx="4"/>
-          <path d="m20.5 101.5 4 4 7.5-8.5"/>
-          <rect x="16" y="138" width="19" height="19" rx="4"/>
-          <path d="m20.5 147.5 4 4 7.5-8.5"/>
-        </g>
-        <g stroke="#ccd8cf" stroke-width="5" stroke-linecap="round">
-          <path d="M46 55.5h55"/><path d="M46 101.5h55"/><path d="M46 147.5h55"/>
-        </g>
-      </svg>
-      <img class="char" src="images/characters/female.png" alt="" loading="lazy">
-    </div>
-
-    <button class="btn" onclick="startQuiz()"><span class="arr-cir lead-icon">→</span>診断をはじめる（無料）</button>
-    <footer class="note">株式会社ヒトキワ｜国際人材採用にまつわるサービスを展開</footer>
   </section>
 
   <!-- ═══════════ 2. Q1 現在の状況 ═══════════ -->
