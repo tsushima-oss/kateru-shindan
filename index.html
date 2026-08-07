@@ -2,6 +2,10 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MGK4F63H');</script>
+<!-- End Google Tag Manager -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>外国人雇用を続けるための申請体制を30秒で診断｜カテル</title>
 <meta name="description" content="外国人を雇用中、過去に雇用経験がある、または採用を見送った企業向けの無料診断です。申請・更新・日本語要件の見直しポイントを3つの質問から確認できます。">
@@ -297,6 +301,9 @@ body:has(#s-top.active){background:#fff}
 </style>
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MGK4F63H" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 <div class="wrap">
 
   <!-- ═══════════ 1. トップ（デザイン画像をそのまま表示） ═══════════ -->
@@ -698,6 +705,16 @@ function track(ev){
   } catch(e){}
 }
 
+/* CVイベント：予約（情報送信）が正常に完了した時のみ・1回だけ発火 */
+let leadFired = false;
+function fireLeadComplete(){
+  if (leadFired) return;
+  leadFired = true;
+  try {
+    (window.dataLayer = window.dataLayer || []).push({event: 'diagnosis_lead_complete'});
+  } catch(e){}
+}
+
 /* ══════════════════ 広告パラメータ取得（Meta広告ひも付け） ══════════════════ */
 const AD = (() => {
   const p = new URLSearchParams(location.search);
@@ -948,6 +965,7 @@ function initTimerex(){
       TimerexCalendar({
         'onBookingComplete': function(){
           track('booking_complete');
+          fireLeadComplete();            // CVイベント（正常完了時のみ・1回だけ）
           sendLog('booking_complete');   // 診断ログの「予約完了」列に記録
         }
       });
@@ -1173,6 +1191,7 @@ async function book(){
     if (ok2){
       document.getElementById('done-datetime').textContent = `${fmtDate(state.selDate)}${state.selTime}〜`;
       track('booking_complete');
+      fireLeadComplete();   // CVイベント（送信が正常完了した場合のみ）
       // 個人情報を画面と状態から消去・回答保存も初期化
       ['i-company','i-name','i-email','i-phone'].forEach(id => get(id).value = '');
       state.company = state.name = state.email = state.phone = '';
